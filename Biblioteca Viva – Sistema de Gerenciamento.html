@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Biblioteca Viva – Sistema de Gerenciamento</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --sf: #fffdf8;
+      --tx: #23221f;
+      --mu: #77746b;
+      --bd: #e3ded1;
+      --ac: #1d5c4a;
+      --acs: #dcebe4;
+      --er: #b3261e;
+      --ers: #fbe4e1;
+      --ok: #1d7a42;
+      --oks: #dff1e5;
+      --wa: #9a6700;
+      --was: #fbefd0;
+      --sh: 0 1px 3px rgba(40, 35, 20, .08);
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      color-scheme: light;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme=light]) {
+        --bg: #151816;
+        --sf: #1e2321;
+        --tx: #ecebe5;
+        --mu: #a29f96;
+        --bd: #343c38;
+        --ac: #6cc9a4;
+        --acs: #24372f;
+        --er: #ff9a90;
+        --ers: #3d2321;
+        --ok: #86dba0;
+        --oks: #1f3a29;
+        --wa: #f0c15a;
+        --was: #3b3017;
+        --sh: none;
+        color-scheme: dark;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--tx);
+      font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    /* Layout principal */
+    .app {
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      min-height: 100vh;
+    }
+
+    aside {
+      background: var(--sf);
+      border-right: 1px solid var(--bd);
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .logo {
+      font: 700 20px Georgia, serif;
+      color: var(--ac);
+      padding: 0 8px 14px;
+    }
+
+    .logo small {
+      display: block;
+      font: 12px system-ui;
+      color: var(--mu);
+      font-weight: 400;
+    }
+
+    aside button.n {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      color: var(--tx);
+      font: inherit;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    aside button.n:hover {
+      background: var(--bg);
+    }
+
+    aside button.n.on {
+      background: var(--acs);
+      color: var(--ac);
+      font-weight: 600;
+    }
+
+    .bdg {
+      margin-left: auto;
+      background: var(--er);
+      color: #fff;
+      border-radius: 99px;
+      font-size: 11px;
+      padding: 1px 7px;
+    }
+
+    .clock {
+      margin-top: auto;
+      border-top: 1px solid var(--bd);
+      padding-top: 12px;
+      font-size: 12px;
+      color: var(--mu);
+    }
+
+    main {
+      padding: 28px 32px;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    h1 {
+      font: 700 26px Georgia, serif;
+      margin: 0 0 4px;
+    }
+
+    .sub {
+      color: var(--mu);
+      margin: 0 0 22px;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 12px;
+    }
+
+    /* Cards, estatísticas e barras */
+    .card {
+      background: var(--sf);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--sh);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .st {
+      background: var(--sf);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: var(--sh);
+      cursor: pointer;
+    }
+
+    .st b {
+      display: block;
+      font: 700 28px Georgia, serif;
+    }
+
+    .st span {
+      color: var(--mu);
+      font-size: 13px;
+    }
+
+    .st.r b {
+      color: var(--er);
+    }
+
+    .bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .bar input {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    /* Formulários e botões */
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    label i {
+      font-weight: 400;
+      color: var(--mu);
+      font-style: normal;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--tx);
+      font: inherit;
+      margin-top: 4px;
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid var(--ac);
+      outline-offset: -1px;
+    }
+
+    .b {
+      background: var(--ac);
+      color: var(--sf);
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .b.g {
+      background: none;
+      color: var(--tx);
+      border: 1px solid var(--bd);
+      font-weight: 500;
+    }
+
+    .b.sm {
+      padding: 5px 10px;
+      font-size: 13px;
+    }
+
+    .b.d {
+      background: var(--er);
+      color: var(--sf);
+    }
+
+    /* Tabelas e badges */
+    .tw {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      font-size: 12px;
+      color: var(--mu);
+      font-weight: 500;
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    td {
+      padding: 11px 8px;
+      border-bottom: 1px solid var(--bd);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border: 0;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 99px;
+    }
+
+    .tag.ok {
+      background: var(--oks);
+      color: var(--ok);
+    }
+
+    .tag.er {
+      background: var(--ers);
+      color: var(--er);
+    }
+
+    .tag.wa {
+      background: var(--was);
+      color: var(--wa);
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--mu);
+      padding: 26px 10px;
+    }
+
+    .mu {
+      color: var(--mu);
+    }
+
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .rules li {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .rules b {
+      display: block;
+      color: var(--ac);
+    }
+
+    /* Modal e toast */
+    dialog {
+      border: 1px solid var(--bd);
+      border-radius: 14px;
+      background: var(--sf);
+      color: var(--tx);
+      padding: 22px;
+      width: min(480px, 92vw);
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, .45);
+    }
+
+    #derr {
+      display: none;
+      background: var(--ers);
+      color: var(--er);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    #hint {
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .acts {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 6px;
+    }
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      transform: translateX(-50%);
+      background: var(--tx);
+      color: var(--bg);
+      padding: 11px 18px;
+      border-radius: 10px;
+      font-weight: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: .25s;
+      z-index: 99;
+      max-width: 92vw;
+      text-align: center;
+    }
+
+    #toast.on {
+      opacity: 1;
+    }
+
+    #toast.er {
+      background: var(--er);
+      color: var(--sf);
+    }
+
+    /* Responsividade */
+    @media (max-width: 760px) {
+      .app {
+        display: block;
+      }
+
+      aside {
+        position: static;
+        height: auto;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px;
+        gap: 4px;
+      }
+
+      .logo, .clock {
+        display: none;
+      }
+
+      aside button.n {
+        width: auto;
+        white-space: nowrap;
+      }
+
+      main {
+        padding: 18px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside id="side"></aside>
+    <main id="v"></main>
+  </div>
+
+  <dialog id="dlg">
+    <h2 id="dt"></h2>
+    <div id="derr"></div>
+    <div id="db"></div>
+    <div class="acts">
+      <button class="b g" type="button" onclick="dlg.close()">Cancelar</button>
+      <button class="b" type="button" id="dok"></button>
+    </div>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* ===== 1. ESTADO, DADOS INICIAIS E UTILITÁRIOS ===== */
+    const STORAGE_KEY = 'biblioteca_viva_v1';
+    const $ = (selector) => document.querySelector(selector);
+    const dlg = $('#dlg');
+
+    let S;
+    let tab = 'inicio';
+    let q = '';
+
+    const seed = () => ({
+      books: [
+        { id: 1, titulo: 'Dom Casmurro', autor: 'Machado de Assis', isbn: '9788535910663', categoria: 'Romance', exemplares: 2 },
+        { id: 2, titulo: 'Clean Code', autor: 'Robert C. Martin', isbn: '9780132350884', categoria: 'Tecnologia', exemplares: 1 },
+        { id: 3, titulo: 'O Hobbit', autor: 'J.R.R. Tolkien', isbn: '9788595084742', categoria: 'Fantasia', exemplares: 3 }
+      ],
+      readers: [
+        { id: 4, nome: 'Ana Souza', cpf: '52998224725', email: 'ana@email.com', telefone: '47999990000' },
+        { id: 5, nome: 'Bruno Lima', cpf: '11144477735', email: 'bruno@email.com', telefone: '47988880000' }
+      ],
+      loans: [],
+      seq: 10,
+      hoje: null
+    });
+
+    const iso = (date) => date.toISOString().slice(0, 10);
+
+    function loadState() {
+      try {
+        S = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      } catch (e) {
+        S = null;
+      }
+      if (!S) S = seed();
+      if (!S.hoje) S.hoje = iso(new Date());
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(S));
+      } catch (e) {
+        // Ignora falhas de armazenamento (ex.: modo privado restrito)
+      }
+    }
+
+    const hoje = () => S.hoje;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;'
+    }[c]));
+
+    const addDias = (dateStr, days) => {
+      const d = new Date(`${dateStr}T12:00:00`);
+      d.setDate(d.getDate() + days);
+      return iso(d);
+    };
+
+    const difDias = (a, b) => Math.round(
+      (new Date(`${a}T12:00:00`) - new Date(`${b}T12:00:00`)) / 864e5
+    );
+
+    const fmt = (dateStr) => dateStr.split('-').reverse().join('/');
+    const R = (val) => `R$ ${val.toFixed(2).replace('.', ',')}`;
+
+    /* ===== 2. REGRAS DE NEGÓCIO (FUNÇÕES PURAS / DOMÍNIO) ===== */
+    const PRAZO = 7;
+    const MAX_ATIVOS = 3;
+    const MULTA_DIA = 1;
+    const MULTA_MAX = 30;
+    const MAX_RENOV = 2;
+
+    const calcMulta = (diasAtraso) => diasAtraso <= 0 ? 0 : Math.min(diasAtraso * MULTA_DIA, MULTA_MAX); // RN-002
+    const isbnOk = (isbn) => /^\d{13}$/.test(isbn); // RN-005
+
+    function cpfOk(cpf) { // RN-006
+      if (!/^\d{11}$/.test(cpf) || /^(\d)\1{10}$/.test(cpf)) return false;
+      for (let t = 9; t < 11; t++) {
+        let s = 0;
+        for (let i = 0; i < t; i++) s += cpf[i] * (t + 1 - i);
+        if (((s * 10) % 11) % 10 != cpf[t]) return false;
+      }
+      return true;
+    }
+
+    const ativos = (readerId = null) => S.loans.filter(
+      (l) => !l.devolvido && (readerId == null || l.readerId == readerId)
+    );
+
+    const disp = (bookObj) => bookObj.exemplares - S.loans.filter(
+      (l) => !l.devolvido && l.bookId == bookObj.id
+    ).length;
+
+    const atrasado = (loan) => !loan.devolvido && difDias(hoje(), loan.venc) > 0;
+    const multaPend = (readerId) => S.loans.some((l) => l.readerId == readerId && l.multa > 0 && !l.multaPaga);
+    const book = (id) => S.books.find((b) => b.id == id);
+    const reader = (id) => S.readers.find((r) => r.id == id);
+
+    function podeEmprestar(rid, bid) { // RN-001, RN-003
+      const b = book(bid);
+      const r = reader(rid);
+      if (!r) return 'Leitor não selecionado: cadastre ou escolha um leitor.';
+      if (!b) return 'Livro não selecionado: cadastre ou escolha um livro.';
+      if (multaPend(rid)) return 'Leitor com multa pendente: registre o pagamento em Atrasos e multas.';
+      if (ativos(rid).some(atrasado)) return 'Leitor com livro em atraso: registre a devolução antes de novo empréstimo.';
+      if (ativos(rid).length >= MAX_ATIVOS) return `Limite atingido: o leitor já tem ${MAX_ATIVOS} empréstimos ativos. Registre uma devolução.`;
+      if (disp(b) <= 0) return 'Livro sem exemplares disponíveis: escolha outro título.';
+      return null;
+    }
+
+    /* ===== 3. INTERFACE, MODAIS E NAVEGAÇÃO ===== */
+    let toastTimer;
+    function toast(msg, isError = false) {
+      const el = $('#toast');
+      el.textContent = msg;
+      el.className = 'on' + (isError ? ' er' : '');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.className = ''; }, 3200);
+    }
+
+    function modal(title, bodyHtml, okLabel, onOk) {
+      $('#dt').textContent = title;
+      $('#db').innerHTML = bodyHtml;
+      $('#derr').style.display = 'none';
+      $('#dok').textContent = okLabel;
+      $('#dok').onclick = onOk;
+      dlg.showModal();
+    }
+
+    const derr = (msg) => {
+      const el = $('#derr');
+      el.textContent = msg;
+      el.style.display = 'block';
+    };
+
+    const nAtr = () => ativos().filter(atrasado).length + S.loans.filter((l) => l.multa > 0 && !l.multaPaga).length;
+
+    const NAV = [
+      ['inicio', '🏠', 'Início'],
+      ['livros', '📖', 'Livros'],
+      ['leitores', '👤', 'Leitores'],
+      ['emprestimos', '🔄', 'Empréstimos'],
+      ['atrasos', '⏰', 'Atrasos e multas']
+    ];
+
+    function resetExemplos() {
+      if (!confirm('Restaurar dados de exemplo? Tudo será apagado.')) return;
+      S = seed();
+      S.hoje = iso(new Date());
+      render();
+    }
+
+    function renderSide() {
+      const pendCount = nAtr();
+      $('#side').innerHTML = `
+        <div class="logo">📚 Biblioteca Viva<small>Gerenciamento de acervo</small></div>
+        ${NAV.map(([k, icon, label]) => `
+          <button class="n ${k == tab ? 'on' : ''}" type="button" onclick="go('${k}')">
+            ${icon} ${label}${k == 'atrasos' && pendCount ? `<span class="bdg">${pendCount}</span>` : ''}
+          </button>
+        `).join('')}
+        <div class="clock">
+          <label style="font-size:12px">Data do sistema
+            <input type="date" value="${S.hoje}" onchange="S.hoje=this.value||S.hoje;render()">
+          </label>
+          Avance a data para simular atrasos.<br>
+          <button class="b g sm" type="button" style="margin-top:8px" onclick="resetExemplos()">Restaurar exemplos</button>
+        </div>
+      `;
+    }
+
+    const PAGES = {
+      inicio: pInicio,
+      livros: pLivros,
+      leitores: pLeitores,
+      emprestimos: pEmp,
+      atrasos: pAtr
+    };
+
+    function render() {
+      renderSide();
+      $('#v').innerHTML = PAGES[tab]();
+      saveState();
+    }
+
+    const go = (k) => {
+      tab = k;
+      q = '';
+      render();
+      scrollTo(0, 0);
+    };
+
+    const head = (title, subtitle, btnHtml = '') => `
+      <div class="bar" style="justify-content:space-between;align-items:flex-start">
+        <div>
+          <h1>${title}</h1>
+          <p class="sub" style="margin:0">${subtitle}</p>
+        </div>
+        ${btnHtml}
+      </div><br>
+    `;
+
+    const fi = (id, label, val = '', hintText = '', type = 'text', attrs = '') => `
+      <label>${label} <i>${hintText}</i>
+        <input id="${id}" type="${type}" value="${esc(val ?? '')}" ${attrs}>
+      </label>
+    `;
+
+    /* ===== 4. PÁGINAS E AÇÕES ===== */
+
+    // Início
+    function pInicio() {
+      const A = ativos().filter(atrasado);
+      const M = S.loans.filter((l) => l.multa > 0 && !l.multaPaga);
+      const totMultas = M.reduce((sum, l) => sum + l.multa, 0);
+      const statCard = (num, lbl, destTab, cls = '') => `
+        <div class="st ${cls}" onclick="go('${destTab}')"><b>${num}</b><span>${lbl}</span></div>
+      `;
+
+      const atencaoRows = [
+        ...A.map((l) => `
+          <tr>
+            <td>${esc(book(l.bookId).titulo)}</td>
+            <td>${esc(reader(l.readerId).nome)}</td>
+            <td><span class="tag er">${difDias(hoje(), l.venc)} dia(s) de atraso</span></td>
+          </tr>
+        `),
+        ...M.map((l) => `
+          <tr>
+            <td>${esc(book(l.bookId).titulo)}</td>
+            <td>${esc(reader(l.readerId).nome)}</td>
+            <td><span class="tag wa">multa ${R(l.multa)}</span></td>
+          </tr>
+        `)
+      ].join('');
+
+      return head('Olá! 👋', `Resumo da biblioteca em ${fmt(hoje())}`) + `
+        <div class="stats">
+          ${statCard(S.books.length, 'títulos no acervo', 'livros')}
+          ${statCard(S.readers.length, 'leitores', 'leitores')}
+          ${statCard(ativos().length, 'empréstimos ativos', 'emprestimos')}
+          ${statCard(A.length, 'em atraso', 'atrasos', A.length ? 'r' : '')}
+          ${statCard(R(totMultas), 'multas pendentes', 'atrasos', totMultas ? 'r' : '')}
+        </div>
+        <div class="card">
+          <h2>⚡ Ações rápidas</h2>
+          <div class="bar" style="margin:0">
+            <button class="b" type="button" onclick="fEmp()">Novo empréstimo</button>
+            <button class="b g" type="button" onclick="fLivro()">Cadastrar livro</button>
+            <button class="b g" type="button" onclick="fLeitor()">Cadastrar leitor</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>⚠️ Precisa de atenção</h2>
+          ${atencaoRows
+            ? `<div class="tw"><table>${atencaoRows}</table></div>`
+            : '<div class="empty">Tudo em dia. Nenhum atraso ou multa pendente ✅</div>'}
+        </div>
+        <div class="card">
+          <h2>📋 Regras do sistema</h2>
+          <ul class="rules">
+            <li><b>Empréstimo</b>${PRAZO} dias corridos, até ${MAX_ATIVOS} ativos por leitor</li>
+            <li><b>Multa</b>R$ 1,00 por dia de atraso, máximo R$ 30,00</li>
+            <li><b>Bloqueio</b>Sem novo empréstimo com multa, atraso ou sem exemplar</li>
+            <li><b>Renovação</b>Até ${MAX_RENOV} vezes (+${PRAZO} dias), só sem atraso</li>
+            <li><b>ISBN</b>13 dígitos numéricos e único</li>
+            <li><b>CPF</b>Válido e único entre os leitores</li>
+          </ul>
+        </div>
+      `;
+    }
+
+    // Livros
+    function listaLivros() {
+      const s = q.toLowerCase();
+      const L = S.books.filter(
+        (b) => !s || [b.titulo, b.autor, b.isbn].some((x) => x.toLowerCase().includes(s))
+      );
+      if (!L.length) {
+        return '<div class="empty">Nenhum livro encontrado. Tente outro título, autor ou ISBN.</div>';
+      }
+      return `
+        <table>
+          <tr><th>Título</th><th>Autor</th><th>ISBN</th><th>Categoria</th><th>Disponível</th><th></th></tr>
+          ${L.map((b) => `
+            <tr>
+              <td><b>${esc(b.titulo)}</b></td>
+              <td>${esc(b.autor)}</td>
+              <td class="mu">${b.isbn}</td>
+              <td>${esc(b.categoria)}</td>
+              <td><span class="tag ${disp(b) > 0 ? 'ok' : 'er'}">${disp(b)} de ${b.exemplares}</span></td>
+              <td>
+                <button class="b g sm" type="button" onclick="fLivro(${b.id})">Editar</button>
+                <button class="b g sm" type="button" onclick="exLivro(${b.id})">Excluir</button>
+              </td>
+            </tr>
+          `).join('')}
+        </table>
+      `;
+    }
+
+    function pLivros() {
+      return head('Livros', 'Cadastre e consulte o acervo.', '<button class="b" type="button" onclick="fLivro()">+ Novo livro</button>') + `
+        <div class="card">
+          <div class="bar">
+            <input placeholder="🔍 Buscar por título, autor ou ISBN" value="${esc(q)}" oninput="q=this.value;$('#tl').innerHTML=listaLivros()">
+          </div>
+          <div class="tw" id="tl">${listaLivros()}</div>
+        </div>
+      `;
+    }
+
+    function fLivro(id) {
+      const e = book(id) || {};
+      const formHtml =
+        fi('titulo', 'Título', e.titulo) +
+        fi('autor', 'Autor', e.autor) +
+        fi('isbn', 'ISBN', e.isbn || '', '13 dígitos, só números', 'text', 'inputmode="numeric" maxlength="13"') +
+        fi('cat', 'Categoria', e.categoria) +
+        fi('ex', 'Número de exemplares', e.exemplares ?? 1, '', 'number', 'min="1"');
+
+      modal(id ? 'Editar livro' : 'Novo livro', formHtml, 'Salvar', () => {
+        const d = {
+          titulo: $('#titulo').value.trim(),
+          autor: $('#autor').value.trim(),
+          isbn: $('#isbn').value.trim(),
+          categoria: $('#cat').value.trim(),
+          exemplares: parseInt($('#ex').value, 10)
+        };
+        if (!d.titulo) return derr('Título obrigatório: informe o título do livro.');
+        if (!d.autor) return derr('Autor obrigatório: informe o autor do livro.');
+        if (!isbnOk(d.isbn)) return derr('ISBN inválido: informe 13 dígitos numéricos.');
+        if (S.books.some((b) => b.isbn === d.isbn && b.id !== e.id)) return derr('ISBN duplicado: este ISBN já existe no acervo.');
+        if (!d.categoria) return derr('Categoria obrigatória: informe a categoria.');
+        if (!(d.exemplares >= 1)) return derr('Exemplares inválidos: informe um número inteiro maior ou igual a 1.');
+        if (e.id && d.exemplares < S.loans.filter((l) => !l.devolvido && l.bookId == e.id).length) {
+          return derr('Exemplares insuficientes: há mais empréstimos ativos que o novo total.');
+        }
+
+        if (e.id) Object.assign(e, d);
+        else S.books.push({ id: S.seq++, ...d });
+
+        dlg.close();
+        toast('Livro salvo com sucesso ✅');
+        render();
+      });
+    }
+
+    function exLivro(id) {
+      if (S.loans.some((l) => !l.devolvido && l.bookId == id)) {
+        return toast('Não é possível excluir: livro com empréstimo ativo. Registre a devolução antes.', true);
+      }
+      if (!confirm('Excluir este livro do acervo?')) return;
+      S.books = S.books.filter((b) => b.id != id);
+      toast('Livro excluído');
+      render();
+    }
+
+    // Leitores
+    function pLeitores() {
+      const body = S.readers.length
+        ? `<table>
+            <tr><th>Nome</th><th>CPF</th><th>E-mail</th><th>Telefone</th><th>Empréstimos</th><th></th></tr>
+            ${S.readers.map((r) => {
+              const temMulta = multaPend(r.id);
+              return `
+                <tr>
+                  <td><b>${esc(r.nome)}</b></td>
+                  <td class="mu">${r.cpf}</td>
+                  <td>${esc(r.email)}</td>
+                  <td>${esc(r.telefone)}</td>
+                  <td>
+                    <span class="tag ${temMulta ? 'wa' : 'ok'}">
+                      ${ativos(r.id).length} de ${MAX_ATIVOS}${temMulta ? ' · multa' : ''}
+                    </span>
+                  </td>
+                  <td><button class="b g sm" type="button" onclick="fLeitor(${r.id})">Editar</button></td>
+                </tr>
+              `;
+            }).join('')}
+          </table>`
+        : '<div class="empty">Nenhum leitor cadastrado ainda.</div>';
+
+      return head('Leitores', 'Pessoas cadastradas para pegar livros emprestados.', '<button class="b" type="button" onclick="fLeitor()">+ Novo leitor</button>') +
+        `<div class="card tw">${body}</div>`;
+    }
+
+    function fLeitor(id) {
+      const e = reader(id) || {};
+      const formHtml =
+        fi('nome', 'Nome completo', e.nome) +
+        fi('cpf', 'CPF', e.cpf || '', '11 dígitos, só números', 'text', 'inputmode="numeric" maxlength="14"') +
+        fi('email', 'E-mail', e.email, '', 'email') +
+        fi('tel', 'Telefone', e.telefone, 'com DDD', 'tel');
+
+      modal(id ? 'Editar leitor' : 'Novo leitor', formHtml, 'Salvar', () => {
+        const d = {
+          nome: $('#nome').value.trim(),
+          cpf: $('#cpf').value.replace(/\D/g, ''),
+          email: $('#email').value.trim(),
+          telefone: $('#tel').value.trim()
+        };
+        if (!d.nome) return derr('Nome obrigatório: informe o nome do leitor.');
+        if (!cpfOk(d.cpf)) return derr('CPF inválido: informe 11 dígitos numéricos válidos.');
+        if (S.readers.some((r) => r.cpf === d.cpf && r.id !== e.id)) return derr('CPF duplicado: já existe um leitor com este CPF.');
+        if (!/^\S+@\S+\.\S+$/.test(d.email)) return derr('E-mail inválido: use o formato nome@dominio.com.');
+        if (d.telefone.replace(/\D/g, '').length < 10) return derr('Telefone inválido: informe DDD + número (mínimo 10 dígitos).');
+
+        if (e.id) Object.assign(e, d);
+        else S.readers.push({ id: S.seq++, ...d });
+
+        dlg.close();
+        toast('Leitor salvo com sucesso ✅');
+        render();
+      });
+    }
+
+    // Empréstimos
+    function pEmp() {
+      const A = ativos();
+      const H = S.loans.filter((l) => l.devolvido).slice().reverse().slice(0, 8);
+
+      const ativosHtml = A.length
+        ? `<table>
+            <tr><th>Livro</th><th>Leitor</th><th>Vence em</th><th>Renovações</th><th>Situação</th><th></th></tr>
+            ${A.map((l) => {
+              const d = difDias(hoje(), l.venc);
+              const situacao = d > 0
+                ? `<span class="tag er">${d} dia(s) de atraso · ${R(calcMulta(d))}</span>`
+                : `<span class="tag ok">${d == 0 ? 'Vence hoje' : 'No prazo'}</span>`;
+              return `
+                <tr>
+                  <td><b>${esc(book(l.bookId).titulo)}</b></td>
+                  <td>${esc(reader(l.readerId).nome)}</td>
+                  <td>${fmt(l.venc)}</td>
+                  <td>${l.renov} de ${MAX_RENOV}</td>
+                  <td>${situacao}</td>
+                  <td>
+                    <button class="b g sm" type="button" onclick="renovar(${l.id})">Renovar</button>
+                    <button class="b sm" type="button" onclick="devolver(${l.id})">Devolver</button>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </table>`
+        : '<div class="empty">Nenhum empréstimo em andamento.</div>';
+
+      const historicoHtml = H.length
+        ? `<table>
+            <tr><th>Livro</th><th>Leitor</th><th>Devolvido em</th><th>Multa</th></tr>
+            ${H.map((l) => {
+              const multaBadge = l.multa
+                ? `<span class="tag ${l.multaPaga ? 'ok' : 'wa'}">${R(l.multa)}${l.multaPaga ? ' · paga' : ''}</span>`
+                : '<span class="mu">sem multa</span>';
+              return `
+                <tr>
+                  <td>${esc(book(l.bookId)?.titulo || '—')}</td>
+                  <td>${esc(reader(l.readerId)?.nome || '—')}</td>
+                  <td>${fmt(l.devolvido)}</td>
+                  <td>${multaBadge}</td>
+                </tr>
+              `;
+            }).join('')}
+          </table>`
+        : '<div class="empty">Ainda não há devoluções.</div>';
+
+      return head('Empréstimos', 'Registre saídas, renovações e devoluções.', '<button class="b" type="button" onclick="fEmp()">+ Novo empréstimo</button>') +
+        `<div class="card tw"><h2>Em andamento</h2>${ativosHtml}</div>` +
+        `<div class="card tw"><h2>Últimas devoluções</h2>${historicoHtml}</div>`;
+    }
+
+    function fEmp() {
+      if (!S.books.length || !S.readers.length) {
+        return toast('Cadastre ao menos um livro e um leitor antes.', true);
+      }
+
+      const bodyHtml = `
+        <div id="hint"></div>
+        <label>Leitor
+          <select id="er" onchange="hint()">
+            ${S.readers.map((r) => `<option value="${r.id}">${esc(r.nome)}</option>`).join('')}
+          </select>
+        </label>
+        <label>Livro
+          <select id="eb" onchange="hint()">
+            ${S.books.map((b) => `<option value="${b.id}">${esc(b.titulo)} (${disp(b)} disp.)</option>`).join('')}
+          </select>
+        </label>
+        <p class="mu" style="font-size:13px;margin:0 0 8px">
+          Prazo de devolução: ${fmt(addDias(hoje(), PRAZO))} (${PRAZO} dias).
+        </p>
+      `;
+
+      modal('Novo empréstimo', bodyHtml, 'Registrar empréstimo', () => {
+        const rid = +$('#er').value;
+        const bid = +$('#eb').value;
+        const er = podeEmprestar(rid, bid);
+        if (er) return derr(er);
+
+        S.loans.push({
+          id: S.seq++,
+          bookId: bid,
+          readerId: rid,
+          inicio: hoje(),
+          venc: addDias(hoje(), PRAZO),
+          renov: 0,
+          devolvido: null,
+          multa: 0,
+          multaPaga: false
+        });
+
+        dlg.close();
+        toast(`Empréstimo registrado. Devolução até ${fmt(addDias(hoje(), PRAZO))} ✅`);
+        render();
+      });
+
+      hint();
+    }
+
+    function hint() {
+      const er = podeEmprestar(+$('#er').value, +$('#eb').value);
+      const h = $('#hint');
+      h.textContent = er ? `🚫 ${er}` : '✅ Empréstimo liberado.';
+      h.style.cssText = `background:var(--${er ? 'ers' : 'oks'});color:var(--${er ? 'er' : 'ok'})`;
+    }
+
+    function renovar(id) { // RN-004
+      const l = S.loans.find((x) => x.id == id);
+      if (atrasado(l)) return toast('Renovação negada: empréstimo em atraso. Registre a devolução.', true);
+      if (l.renov >= MAX_RENOV) return toast(`Renovação negada: limite de ${MAX_RENOV} renovações atingido.`, true);
+
+      l.renov++;
+      l.venc = addDias(l.venc, PRAZO);
+      toast(`Renovado! Novo vencimento: ${fmt(l.venc)} ✅`);
+      render();
+    }
+
+    function devolver(id) { // RF-004
+      const l = S.loans.find((x) => x.id == id);
+      l.devolvido = hoje();
+      l.multa = calcMulta(difDias(hoje(), l.venc));
+
+      if (l.multa > 0) {
+        toast(`Devolvido com atraso. Multa de ${R(l.multa)} registrada.`, true);
+      } else {
+        toast('Devolvido sem multa (R$ 0,00) ✅');
+      }
+      render();
+    }
+
+    // Atrasos e multas
+    function pagarMulta(id) {
+      const loan = S.loans.find((x) => x.id == id);
+      if (!loan) return;
+      loan.multaPaga = true;
+      toast('Multa quitada ✅');
+      render();
+    }
+
+    function pAtr() {
+      const A = ativos().filter(atrasado);
+      const M = S.loans.filter((l) => l.multa > 0 && !l.multaPaga);
+
+      const atrasosHtml = A.length
+        ? `<table>
+            <tr><th>Livro</th><th>Leitor</th><th>Venceu em</th><th>Dias</th><th>Multa até hoje</th><th></th></tr>
+            ${A.map((l) => {
+              const d = difDias(hoje(), l.venc);
+              return `
+                <tr>
+                  <td><b>${esc(book(l.bookId).titulo)}</b></td>
+                  <td>${esc(reader(l.readerId).nome)}</td>
+                  <td>${fmt(l.venc)}</td>
+                  <td><span class="tag er">${d}</span></td>
+                  <td>${R(calcMulta(d))}</td>
+                  <td><button class="b sm" type="button" onclick="devolver(${l.id})">Registrar devolução</button></td>
+                </tr>
+              `;
+            }).join('')}
+          </table>`
+        : '<div class="empty">Nenhum livro em atraso 🎉</div>';
+
+      const multasHtml = M.length
+        ? `<table>
+            <tr><th>Livro</th><th>Leitor</th><th>Valor</th><th></th></tr>
+            ${M.map((l) => `
+              <tr>
+                <td>${esc(book(l.bookId).titulo)}</td>
+                <td>${esc(reader(l.readerId).nome)}</td>
+                <td><b>${R(l.multa)}</b></td>
+                <td><button class="b sm" type="button" onclick="pagarMulta(${l.id})">Registrar pagamento</button></td>
+              </tr>
+            `).join('')}
+          </table>`
+        : '<div class="empty">Nenhuma multa pendente.</div>';
+
+      return head('Atrasos e multas', 'Acompanhe quem precisa devolver ou pagar.') +
+        `<div class="card tw"><h2>Livros em atraso</h2>${atrasosHtml}</div>` +
+        `<div class="card tw"><h2>Multas pendentes</h2>${multasHtml}</div>`;
+    }
+
+    // Inicialização
+    loadState();
+    render();
+  </script>
+</body>
+</html>
